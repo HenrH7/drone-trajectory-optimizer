@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "drone-path-optimizer"
+version = "0.1.0"
+description = "Drone path optimization project"
+authors = [
+    {name = "Henry Hodges", email = "henrydavidhodges@gmail.com"},
+]
+dependencies = [
+    "numpy",
+    "matplotlib",
+    "scipy",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-v --tb=short"
