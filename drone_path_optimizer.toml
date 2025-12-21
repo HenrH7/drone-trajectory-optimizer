@@ -13,6 +13,7 @@ dependencies = [
     "numpy",
     "matplotlib",
     "scipy",
+    "bezier-python",
 ]
 
 [tool.pytest.ini_options]
