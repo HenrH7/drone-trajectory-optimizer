@@ -105,7 +105,8 @@ def test_mission(points, wind):
     print(f"Percentage Energy Savings: {((sum(straight_line_energy_for_segments) - sum(energy_for_segments)) / sum(straight_line_energy_for_segments) * 100):.2f}%")
 
     ax.legend()
-    plt.savefig('artifacts/plots/flight_path.png', dpi=300, bbox_inches='tight')
+    plt.tight_layout()
+    plt.savefig('artifacts/plots/flight_path.png', dpi=300, bbox_inches='tight', pad_inches=0.5)
     plt.show()
     
 # Define mission points with multiple waypoints

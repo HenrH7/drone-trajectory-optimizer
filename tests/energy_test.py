@@ -29,7 +29,6 @@ def multiple_path_plot(paths, wind_speeds, title="Multiple Drone Flight Paths"):
     ax.legend()
 
     plt.savefig(f'artifacts/plots/{title}.png', dpi=300, bbox_inches='tight')
-    plt.show()
 
 def compare_tailwind_tests(z_c, wind_range):
     """Compare PathOptimizer vs StraightLineMission across different windspeeds"""
@@ -102,10 +101,10 @@ def compare_tailwind_tests(z_c, wind_range):
     ax2.legend(fontsize=10)
     ax2.grid(True, alpha=0.3)
     
+    
     plt.tight_layout()
     plt.savefig('artifacts/plots/tailwind_comparison.png', dpi=150, bbox_inches='tight')
     print("Plots saved to 'tailwind_comparison.png'")
-    plt.show()
     
     # Print summary statistics
     print("\n" + "="*60)
@@ -123,7 +122,7 @@ def compare_tailwind_tests(z_c, wind_range):
 
     multiple_path_plot(paths, windspeeds, title="Flight Paths under Different Tailwind Speeds")
 
-    return saved_energy_pcts
+    return saved_energy_pcts, windspeeds, optimizer_energy, optimizer_time, straight_energy, straight_time
 
 def compare_headwind_tests(z_c, wind_range):
     """Compare PathOptimizer vs StraightLineMission across different windspeeds"""
@@ -194,11 +193,10 @@ def compare_headwind_tests(z_c, wind_range):
     ax2.set_title('Mission Time vs Headwind Speed', fontsize=14, fontweight='bold')
     ax2.legend(fontsize=10)
     ax2.grid(True, alpha=0.3)
-    
+
     plt.tight_layout()
-    plt.savefig('artifacts/plots/headwind_comparison.png', dpi=150, bbox_inches='tight')
+    plt.savefig('artifacts/plots/headwind_comparison.png', dpi=300, bbox_inches='tight')
     print("Plots saved to 'headwind_comparison.png'")
-    plt.show()
     
     # Print summary statistics
     print("\n" + "="*60)
@@ -216,7 +214,7 @@ def compare_headwind_tests(z_c, wind_range):
 
     multiple_path_plot(paths, windspeeds, title="Flight Paths under Different Headwind Speeds")
 
-    return saved_energy_pcts  
+    return saved_energy_pcts, windspeeds, optimizer_energy, optimizer_time, straight_energy, straight_time
 
 def simple_test(wind_field=None):
 
@@ -267,8 +265,34 @@ def test_energy():
     # comparing energy and time at different wind speeds in both headwind and tailwind
     z_c = 200
     wind_range = range(0, 32, 5)
-    savings_head = compare_headwind_tests(z_c, wind_range)
-    savings_tail = compare_tailwind_tests(z_c, wind_range)
+    savings_head, head_winds, head_opt_e, head_opt_t, head_str_e, head_str_t = compare_headwind_tests(z_c, wind_range)
+    savings_tail, tail_winds, tail_opt_e, tail_opt_t, tail_str_e, tail_str_t = compare_tailwind_tests(z_c, wind_range)
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+
+    # Headwind: Optimized vs Straight
+    ax1.plot(wind_range, tail_opt_e, 'bo-', linewidth=2, markersize=6, label='Headwind Optimized')
+    ax1.plot(wind_range, tail_str_e, 'rs--', linewidth=2, markersize=6, label='Headwind Straight')
+
+    # Tailwind: Optimized vs Straight
+    ax2.plot(wind_range, head_opt_e, 'bo-', linewidth=2, markersize=6, label='Tailwind Optimized')
+    ax2.plot(wind_range, head_str_e, 'rs--', linewidth=2, markersize=6, label='Tailwind Straight')
+
+    ax1.set_xlabel('Tailwind Speed (m/s)', fontsize=12)
+    ax1.set_ylabel('Energy (Wh)', fontsize=12)
+    ax1.set_title('Energy vs Tailwind Speed', fontsize=14, fontweight='bold')
+    ax1.grid(True, alpha=0.3)
+    ax1.legend(fontsize=10)
+
+    ax2.set_xlabel('Headwind Speed (m/s)', fontsize=12)
+    ax2.set_ylabel('Energy (Wh)', fontsize=12)
+    ax2.set_title('Energy vs Headwind Speed', fontsize=14, fontweight='bold')
+    ax2.grid(True, alpha=0.3)
+    ax2.legend(fontsize=10)
+
+    plt.tight_layout()
+    plt.savefig('artifacts/plots/energy_vs_time.png', dpi=300, bbox_inches='tight')
+    print("Plots saved to 'energy_vs_wind.png'")
     
 
     print("\n" + "="*60)

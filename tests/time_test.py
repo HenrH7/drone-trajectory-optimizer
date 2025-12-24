@@ -174,7 +174,7 @@ def plot_run_times(run_times, results, wind_speeds, wind_directions):
     ax4.grid(True, alpha=0.3, axis='y')
     
     plt.tight_layout()
-    plt.savefig('artifacts/plots/optimization_performance.png', dpi=300, )
+    plt.savefig('artifacts/plots/optimization_performance.png', dpi=300, bbox_inches='tight')
     print("Performance plot saved to: optimization_performance.png")
     plt.show()
 
