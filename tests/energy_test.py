@@ -42,6 +42,9 @@ def compare_tailwind_tests(z_c, wind_range):
     optimizer_time = []
     straight_energy = []
     straight_time = []
+    start_speeds = []
+    end_speeds = []
+    percentage_energy_savings = []
     
     print("Running tests...")
     print("="*60)
@@ -53,25 +56,28 @@ def compare_tailwind_tests(z_c, wind_range):
         # Set wind baseline
         wind_field = Wind(z_c, 0, windspeed)  # tailwind
         
-        straight_energy_x, straight_time_x, optimizer_energy_x, optimizer_time_x, path_points = simple_test(wind_field=wind_field)
+        straight_energy_x, straight_time_x, optimizer_energy_x, optimizer_time_x, path_points, start_speed, end_speed = simple_test(wind_field=wind_field)
 
         straight_energy.append(straight_energy_x)
         straight_time.append(straight_time_x)
         optimizer_energy.append(optimizer_energy_x)
         optimizer_time.append(optimizer_time_x)
+        start_speeds.append(start_speed)
+        end_speeds.append(end_speed)
+        percentage_energy_savings.append(100 * (straight_energy_x - optimizer_energy_x) / straight_energy_x)
 
         paths.append(path_points)
 
         print("-"*40)
     
     # Save to CSV
-    with open("artifacts/reports/comparison_results.csv", "w", newline="") as csvfile:
+    with open("artifacts/reports/tailwind_test.csv", "w", newline="") as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(["Windspeed", "optimizer_energy", "optimizer_time", 
-                        "straight_energy", "straight_time"])
+                        "straight_energy", "straight_time", "percentage_energy_savings"])
         for i, speed in enumerate(windspeeds):
             writer.writerow([speed, optimizer_energy[i], optimizer_time[i],
-                           straight_energy[i], straight_time[i]])
+                           straight_energy[i], straight_time[i], percentage_energy_savings[i]])
     
     print("\n" + "="*60)
     print("Results saved to 'comparison_results.csv'")
@@ -137,6 +143,9 @@ def compare_headwind_tests(z_c, wind_range):
     optimizer_time = []
     straight_energy = []
     straight_time = []
+    start_speeds = []
+    end_speeds = []
+    percentage_energy_savings = []
     
     print("Running tests...")
     print("="*60)
@@ -147,26 +156,29 @@ def compare_headwind_tests(z_c, wind_range):
         # Set wind baseline
         wind_field = Wind(z_c, 180, windspeed)  # tailwind
         
-        straight_energy_x, straight_time_x, optimizer_energy_x, optimizer_time_x, path_points = simple_test(wind_field=wind_field)
+        straight_energy_x, straight_time_x, optimizer_energy_x, optimizer_time_x, path_points, start_speed, end_speed = simple_test(wind_field=wind_field)
 
         straight_energy.append(straight_energy_x)
         straight_time.append(straight_time_x)
         optimizer_energy.append(optimizer_energy_x)
         optimizer_time.append(optimizer_time_x)
+        start_speeds.append(start_speed)
+        end_speeds.append(end_speed)
+        percentage_energy_savings.append(100 * (straight_energy_x - optimizer_energy_x) / straight_energy_x)
 
         paths.append(path_points)
 
         print("-"*40)
     
     # Save to CSV
-    with open("artifacts/reports/comparison_results.csv", "w", newline="") as csvfile:
+    with open("artifacts/reports/headwind_test.csv", "w", newline="") as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(["Windspeed", "optimizer_energy", "optimizer_time", 
-                        "straight_energy", "straight_time"])
+                        "straight_energy", "straight_time", "percentage_energy_savings"])
         for i, speed in enumerate(windspeeds):
             writer.writerow([speed, optimizer_energy[i], optimizer_time[i],
-                           straight_energy[i], straight_time[i]])
-    
+                           straight_energy[i], straight_time[i], percentage_energy_savings[i]])
+
     print("\n" + "="*60)
     
     # Plot results
@@ -259,12 +271,12 @@ def simple_test(wind_field=None):
     print(f"Energy Saved by Optimization (Wh): {straight_E_Wh - total_E_Wh:.2f}")
     print(f"Percentage Energy Savings: {((straight_E_Wh - total_E_Wh) / straight_E_Wh * 100):.2f}%")
 
-    return straight_E_Wh, straight_time, total_E_Wh, total_time, path_points
+    return straight_E_Wh, straight_time, total_E_Wh, total_time, path_points, result.x[0], result.x[1]
 
 def test_energy():
     # comparing energy and time at different wind speeds in both headwind and tailwind
     z_c = 200
-    wind_range = range(0, 32, 5)
+    wind_range = range(0, 31, 5)
     savings_head, head_winds, head_opt_e, head_opt_t, head_str_e, head_str_t = compare_headwind_tests(z_c, wind_range)
     savings_tail, tail_winds, tail_opt_e, tail_opt_t, tail_str_e, tail_str_t = compare_tailwind_tests(z_c, wind_range)
 
@@ -297,13 +309,13 @@ def test_energy():
 
     print("\n" + "="*60)
     print("AVERAGE ENERGY SAVINGS")
-    print(sum(savings_head)/len(savings_head), "% for headwind tests")
-    print(sum(savings_tail)/len(savings_tail), "% for tailwind tests")
+    print(sum(savings_head[1:])/(len(savings_head) - 1), "% for headwind tests") # removing first value (0 windspeed)
+    print(sum(savings_tail[1:])/(len(savings_tail) - 1), "% for tailwind tests")
 
 # path points for testing
 points = [
-    (0, 0, 0),  # Start point
-    (1000, 0, 200)  # End point
+    (0, 0, 200),  # Start point
+    (1000, 0, 0)  # End point
 ]
 
 def main():
